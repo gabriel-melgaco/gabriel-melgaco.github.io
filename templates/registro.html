@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registre-se</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="page">
+        <form action="{{ url_for('registrar') }}" method="POST" class="formLogin">
+            <h1>REGISTRE-SE</h1>
+            <p>Digite os seus dados nos campos abaixo.</p>
+             <label for="nome">Nickname</label>
+            <input type="nome" name="nome" placeholder="Digite seu Nickname" autofocus="true" />
+            <label for="email">E-mail</label>
+            <input type="email" name="email" placeholder="Digite seu e-mail" autofocus="true" />
+            <label for="email2">Confirme seu E-mail</label>
+            <input type="email" name="email2" placeholder="Digite seu e-mail novamente" autofocus="true" />
+            <label for="password">Senha</label>
+            <input type="password" name="password" placeholder="Digite sua senha" />
+            <label for="password2">Senha</label>
+            <input type="password" name="password2" placeholder="Digite sua senha novamente" />
+            <input type="submit" value="Cadastrar-se" class="btn" />
+            {%set menssagem = get_flashed_messages() %}
+            {% if menssagem %}
+                <div class="flash_alerta">
+                    {{menssagem[0]}}
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+</body>
+</html>
