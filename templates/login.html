@@ -13,9 +13,9 @@
             <h1>Login</h1>
             <p>Digite os seus dados de acesso no campo abaixo.</p>
             <label for="email">E-mail</label>
-            <input type="email" name="email" placeholder="Digite seu e-mail" autofocus="true" />
+            <input type="email" name="email" placeholder="Digite seu e-mail" autofocus="true"/>
             <label for="password">Senha</label>
-            <input type="password" name="password" placeholder="Digite seu e-mail" />
+            <input type="password" name="password" placeholder="Digite sua senha" required minlength="8" />
             <a href="/pagina_registro">Cadastre-se</a>
             <input type="submit" value="Acessar" class="btn" />
             {%set menssagem = get_flashed_messages() %}

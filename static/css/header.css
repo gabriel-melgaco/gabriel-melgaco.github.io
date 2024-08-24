@@ -1,0 +1,25 @@
+@charset "UTF-8";
+
+header.p-3.mb-3.border-bottom {
+  background-color: black;
+  color: white;
+  position: relative;
+  /* ou 'absolute' ou 'fixed', dependendo da sua necessidade */
+  z-index: 1000;
+  /* valor alto para garantir que o header fique no topo */
+}
+
+.bem-vindo {
+  margin-right: 20px;
+  /* Ajuste o valor conforme necessário */
+}
+
+.dropdown {
+  margin-right: 20px;
+  /* Ajuste o valor conforme necessário */
+}
+
+#contactForm {
+  margin-left: 20px;
+  /* Ajuste o valor conforme necessário */
+}
