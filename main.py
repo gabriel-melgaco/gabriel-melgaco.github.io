@@ -14,11 +14,11 @@ login_manager.init_app(app)
 login_manager.login_view = 'home'
 
 '''--------------------BANCO DE DADOS------------------'''
-db = SqliteDatabase('emailsenha.db')  # Um único banco de dados
+db = SqliteDatabase('emailsenha.db') #nome do banco de dados
 
 class BaseModel(Model):
     class Meta:
-        database = db  # Usa o banco de dados 'emailsenha.db'
+        database = db
 
 class emailsenha(BaseModel, UserMixin):
     nome = CharField(unique=True, null=False)
@@ -26,7 +26,7 @@ class emailsenha(BaseModel, UserMixin):
     senha = CharField(null=False)
     foto = BlobField()
 
-class agenda(BaseModel, UserMixin):  # Tabela agenda no mesmo banco
+class agenda(BaseModel, UserMixin):
     usuario = ForeignKeyField(emailsenha, backref='agendas')  # Chave estrangeira referenciando emailsenha
     tarefa = CharField(unique=True, null=False)
     start_date = DateField(null=False)
@@ -39,12 +39,10 @@ db.connect()
 db.create_tables([emailsenha, agenda])
 
 
-'''---------------------------LOGIN MANAGER ------------------------'''
+'''---------------------------ROTAS DO FLASK LOGIN E REGISTRO---------------------------------------'''
 @login_manager.user_loader
 def load_user(user_id):
     return emailsenha.get_or_none(id=user_id)
-
-'''---------------------------ROTAS DO FLASK ---------------------------------------'''
 
 
 @app.route("/")
@@ -100,6 +98,7 @@ def login():
 def protected():
     return render_template('home.html', user=current_user)
 
+'''---------------------------ROTAS DO AGENDA DE EVENTOS---------------------------------------'''
 
 @app.route("/agenda") #visualizar a agenda
 @login_required
@@ -146,6 +145,7 @@ def excluir_evento(evento_id):
     return redirect(url_for('overview'))  # Recarrega a página após a exclusão
 
 
+'''---------------------------ROTAS DO FLASK CONFIGURAÇÕES DE CONTA---------------------------------------'''
 @app.route("/settings")
 @login_required
 def settings():
