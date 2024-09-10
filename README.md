@@ -2,7 +2,7 @@ Flask User Authentication, Profile Management, and Event Scheduling Application
 
 A web application built with Flask that provides user registration, login, profile management, account settings functionality, and event scheduling. It leverages Flask-Login for user authentication and Peewee ORM with SQLite for database management.
 
-* Features
+ *Features*
 
 - User Registration: Create an account with a unique username and email.
 - User Login and Logout: Authenticate and manage user sessions.
@@ -16,7 +16,7 @@ A web application built with Flask that provides user registration, login, profi
 - Delete Events: Users can delete events from their calendar.
 - Flash Messages: Receive feedback on actions like login, registration, profile updates, and event management.
 
-* Technologies Used
+*Technologies Used*
 
 -> Backend:
 Flask – A lightweight WSGI web application framework.
