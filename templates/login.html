@@ -5,11 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+     <link rel="icon" type="image/x-icon" href="static/assets/MEG_DEV_ICON.png" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="page">
         <form action="{{ url_for('login') }}" method="POST" class="formLogin">
+            <img src="{{ url_for('static', filename='assets/img/MEG_DEV.png') }}" alt="Logo" width="100" height="auto" />
             <h1>Login</h1>
             <p>Digite os seus dados de acesso no campo abaixo.</p>
             <label for="email">E-mail</label>

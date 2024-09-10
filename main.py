@@ -1,22 +1,24 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from peewee import *
 import base64
+import datetime
 
 app = Flask(__name__)
 app.secret_key = 'flash_alerta'
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)  # Definir a duração desejada p/ logout automático
 
 # Configuração do Flask-Login
 login_manager = LoginManager()
-login_manager.init_app(app)  # Inicializa o LoginManager com a aplicação Flask
-login_manager.login_view = 'home'  # Redireciona para a página de login se o usuário não estiver autenticado
+login_manager.init_app(app)
+login_manager.login_view = 'home'
 
 '''--------------------BANCO DE DADOS------------------'''
-db = SqliteDatabase('emailsenha.db')
+db = SqliteDatabase('emailsenha.db')  # Um único banco de dados
 
 class BaseModel(Model):
     class Meta:
-        database = db
+        database = db  # Usa o banco de dados 'emailsenha.db'
 
 class emailsenha(BaseModel, UserMixin):
     nome = CharField(unique=True, null=False)
@@ -24,8 +26,18 @@ class emailsenha(BaseModel, UserMixin):
     senha = CharField(null=False)
     foto = BlobField()
 
+class agenda(BaseModel, UserMixin):  # Tabela agenda no mesmo banco
+    usuario = ForeignKeyField(emailsenha, backref='agendas')  # Chave estrangeira referenciando emailsenha
+    tarefa = CharField(unique=True, null=False)
+    start_date = DateField(null=False)
+    end_date = DateField(null=False)
+    description = CharField(unique=True, null=False)
+    color = CharField(null=False)
+
+# Conectar ao banco de dados e criar as tabelas
 db.connect()
-db.create_tables([emailsenha])
+db.create_tables([emailsenha, agenda])
+
 
 '''---------------------------LOGIN MANAGER ------------------------'''
 @login_manager.user_loader
@@ -33,15 +45,19 @@ def load_user(user_id):
     return emailsenha.get_or_none(id=user_id)
 
 '''---------------------------ROTAS DO FLASK ---------------------------------------'''
+
+
 @app.route("/")
 def home():
     if current_user.is_authenticated:
         return redirect(url_for('protected'))
     return render_template('login.html')
 
+
 @app.route("/pagina_registro")
 def registro():
     return render_template('registro.html')
+
 
 @app.route("/register", methods=['POST'])
 def registrar():
@@ -63,6 +79,7 @@ def registrar():
         flash('e-mail/senha não coincidem, tente novamente.')
         return render_template('registro.html')
 
+
 @app.route("/login", methods=['POST'])
 def login():
     email = request.form["email"]
@@ -71,25 +88,69 @@ def login():
 
     if user and user.senha == senha:
         login_user(user)
+        session.permanent = True  # torna a sessão permanente
         return redirect(url_for('protected'))
 
     flash('LOGIN/SENHA INCORRETO')
     return render_template('login.html')
+
 
 @app.route("/protected")
 @login_required
 def protected():
     return render_template('home.html', user=current_user)
 
-@app.route("/overview")
+
+@app.route("/agenda") #visualizar a agenda
 @login_required
 def overview():
-    return render_template('overview.html', user=current_user)
+    tarefa = agenda.select().where(agenda.usuario == current_user.id)
+    events = []
+    for x in tarefa:
+        detalhe_evento = {
+                'tarefa': x.tarefa,
+                'date': x.start_date,
+                'end_date': x.end_date,
+                'description': x.description,
+                'color': x.color,
+            }
+        events.append(detalhe_evento)
+
+    return render_template('agenda.html', user=current_user, events=events, tarefa=tarefa)
+
+
+@app.route("/cadastrar_evento", methods=['POST']) #cadastrar evento no banco de dados
+@login_required
+def cadastrar_evento():
+    usuario = current_user
+    tarefa = request.form["tarefa"]
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
+    description = request.form["description"]
+    color = request.form["color"]
+
+    agenda.create(usuario=usuario, tarefa=tarefa, start_date=start_date, end_date=end_date, description=description, color=color)
+    return redirect(url_for('overview'))
+
+
+@app.route("/excluir_evento/<int:evento_id>", methods=['POST']) #excluir evento no banco de dados
+@login_required
+def excluir_evento(evento_id):
+    try:
+        evento = agenda.get(agenda.id == evento_id)
+        evento.delete_instance()  # Exclui o evento do banco de dados
+        flash("Evento excluído com sucesso!")
+    except agenda.DoesNotExist:
+        flash("Evento não encontrado!")
+
+    return redirect(url_for('overview'))  # Recarrega a página após a exclusão
+
 
 @app.route("/settings")
 @login_required
 def settings():
     return render_template('settings.html', user=current_user)
+
 
 @app.route("/upload_foto", methods=['POST'])
 @login_required
@@ -102,7 +163,31 @@ def upload_foto():
         user.save()
 
         flash('Foto atualizada com sucesso!')
-    return redirect(url_for('settings'))  # Redireciona para a página de configurações após o upload
+    return redirect(url_for('settings'))
+
+
+@app.route("/upload_dados", methods=['POST'])
+@login_required
+def upload_dados():
+    nome = request.form.get("nome")
+    senha = request.form.get("password")
+    senha2 = request.form.get("password2")
+
+    if senha == senha2:
+        user = current_user
+        user.nome = nome
+        user.senha = senha
+        try:
+            user.save()
+            flash('Alteração realizada com sucesso!')
+        except IntegrityError:
+            flash('Este e-mail/nickname já está registrado ou preencha todos os campos.')
+            return render_template('settings.html', user=user)
+    else:
+        flash('Senha não coincide, tente novamente.')
+
+    return redirect(url_for('settings'))
+
 
 @app.route("/logout", methods=['POST'])
 @login_required
@@ -111,11 +196,11 @@ def logout():
     flash('Você saiu da sua conta.')
     return redirect(url_for('home'))
 
-# Função que será executada antes de renderizar qualquer template
+
 @app.context_processor
 def inject_foto_data_url():
     if current_user.is_authenticated:
-        if current_user.foto == b'':  # Verifica se a foto está vazia (ou usa algum outro critério para definir "sem foto")
+        if current_user.foto == b'':
             foto_data_url = url_for('static', filename='assets/img/user_icon.png')
         else:
             foto_base64 = base64.b64encode(current_user.foto).decode('utf-8')

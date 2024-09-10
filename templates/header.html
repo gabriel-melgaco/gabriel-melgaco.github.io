@@ -5,14 +5,14 @@
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
         <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
+           <img src="{{ url_for('static', filename='assets/img/MEG_DEV.png') }}" alt="Logo" width="50" height="auto" />
         </a>
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><a href="/overview" class="nav-link px-2 link-secondary">Overview</a></li>
+          <li><a href="/agenda" class="nav-link px-2 link-secondary">Agenda</a></li>
           <li><a href="/protected" class="nav-link px-2 link-body-emphasis">Home</a></li>
-          <li><a href="#" class="nav-link px-2 link-body-emphasis">Customers</a></li>
-          <li><a href="#" class="nav-link px-2 link-body-emphasis">Products</a></li>
+          <li><a href="#" class="nav-link px-2 link-body-emphasis">Clientes</a></li>
+          <li><a href="#" class="nav-link px-2 link-body-emphasis">Produtos</a></li>
         </ul>
           <div class="bem-vindo">
               <p class="fst-italic lh-1 mb-4">Seja Bem-Vindo, {{ user.nome }}</p>
@@ -24,8 +24,8 @@
           </a>
           <ul class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="#">New project...</a></li>
-            <li><a class="dropdown-item" href="/settings">Settings</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="/settings">Configurações</a></li>
+            <li><a class="dropdown-item" href="#">Perfil</a></li>
           </ul>
         </div>
           <form action="{{ url_for('logout') }}" method="POST" id="contactForm" data-sb-form-api-token="API_TOKEN">
