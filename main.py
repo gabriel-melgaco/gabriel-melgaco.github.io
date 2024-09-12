@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from peewee import *
 import base64
 import datetime
+import bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'flash_alerta'
@@ -66,8 +67,9 @@ def registrar():
     senha2 = request.form["password2"]
     foto = b''  # Usar bytes vazios como padrão
     if email == email2 and senha == senha2:
+        heashed_senha = bcrypt.hashpw(senha.encode('utf-8'),bcrypt.gensalt())
         try:
-            emailsenha.create(nome=nome, email=email, senha=senha, foto=foto)
+            emailsenha.create(nome=nome, email=email, senha=heashed_senha, foto=foto)
             flash('Registro realizado com sucesso! Faça login.')
             return redirect(url_for('home'))
         except IntegrityError:
@@ -84,7 +86,7 @@ def login():
     senha = request.form["password"]
     user = emailsenha.get_or_none(emailsenha.email == email)
 
-    if user and user.senha == senha:
+    if user and bcrypt.checkpw(senha.encode('utf-8'), user.senha.encode('utf-8')):
         login_user(user)
         session.permanent = True  # torna a sessão permanente
         return redirect(url_for('protected'))
