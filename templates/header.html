@@ -1,53 +1,42 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/header.css') }}">
-    <!-- Inclua o CSS do Bootstrap no <head> -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Document</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/header.css') }}">
+<!-- Inclua o CSS do Bootstrap no <head> -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Inclua o JavaScript do Bootstrap antes do fechamento da tag </body> -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+
 </head>
-<body>
-    <header class="fixed-header p-3 mb-3 border-bottom">
-        <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                    <img src="{{ url_for('static', filename='assets/img/MEG_DEV.png') }}" alt="Logo" width="50" height="auto" />
-                </a>
+    <body>
+    <header class="p-3 mb-3 border-bottom">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+           <img src="{{ url_for('static', filename='assets/img/MEG_DEV.png') }}" alt="Logo" width="50" height="auto" />
+        </a>
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/agenda" class="nav-link px-2 link-secondary">Agenda</a></li>
-                    <li><a href="/protected" class="nav-link px-2 link-body-emphasis">Home</a></li>
-                    <li><a href="#" class="nav-link px-2 link-body-emphasis">Clientes</a></li>
-                    <li><a href="#" class="nav-link px-2 link-body-emphasis">Produtos</a></li>
-                </ul>
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href="/agenda" class="nav-link px-2 link-secondary">Agenda</a></li>
+          <li><a href="/protected" class="nav-link px-2 link-body-emphasis">Home</a></li>
+          <li><a href="/settings" class="nav-link px-2 link-body-emphasis">Perfil</a></li>
+          <li><a href="#" class="nav-link px-2 link-body-emphasis">Produtos</a></li>
+        </ul>
+          <div class="bem-vindo">
+              <p class="fst-italic lh-1 mb-4">Seja Bem-Vindo, {{ user.nome }}</p>
+          </div>
 
-                <div class="bem-vindo">
-                    <p class="fst-italic lh-1 mb-4">Seja Bem-Vindo, {{ user.nome }}</p>
-                </div>
-
-                <div class="dropdown text-end">
-                    <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{{ foto_data_url }}" alt="mdo" width="32" height="32" class="rounded-circle">
-                    </a>
-                    <ul class="dropdown-menu text-small">
-                        <li><a class="dropdown-item" href="#">New project...</a></li>
-                        <li><a class="dropdown-item" href="/settings">Configurações</a></li>
-                        <li><a class="dropdown-item" href="#">Perfil</a></li>
-                    </ul>
-                </div>
-
-                <form action="{{ url_for('logout') }}" method="POST" id="contactForm" data-sb-form-api-token="API_TOKEN">
-                    <div class="col-auto">
-                        <button class="btn btn-primary" id="submitButton" type="submit">Logout</button>
-                    </div>
-                </form>
-            </div>
+          <div class="dropdown text-end">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+           <img src="{{ foto_data_url }}" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small">
+            <li><a class="dropdown-item" href="#">New project...</a></li>
+            <li><a class="dropdown-item" href="/settings">Configurações</a></li>
+            <li><a class="dropdown-item" href="#">Perfil</a></li>
+          </ul>
         </div>
-    </header>
-
-    <!-- Inclua o JavaScript do Bootstrap antes do fechamento da tag </body> -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+          <form action="{{ url_for('logout') }}" method="POST" id="contactForm" data-sb-form-api-token="API_TOKEN">
+              <div class="col-auto"><button class="btn btn-primary" id="submitButton" type="submit">Logout</button></div>
+          </form>
+      </div>
+    </div>
+  </header>

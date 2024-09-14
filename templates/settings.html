@@ -11,6 +11,9 @@
   <body>
   {% include 'header.html' %}
   <div class="container my-5 p-4 bg-light rounded">
+      <div class="p-4 bg-light rounded">
+          <img src="{{ foto_data_url }}" alt="mdo" width="200" height="200" class="rounded-circle">
+      </div>
     <h1>Alterar foto de Perfil </h1>
     <form action="{{ url_for('upload_foto') }}" method="POST" enctype="multipart/form-data" class="formLogin">
     <input type="file" name="file" accept=".jpeg, .jpg, .png" required>

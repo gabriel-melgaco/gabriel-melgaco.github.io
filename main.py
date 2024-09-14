@@ -129,7 +129,7 @@ def ratelimit_handler(e):
 @login_required
 def protected():
     # Buscar todas as postagens
-    postagens = postagem.select()
+    postagens = postagem.select().order_by(postagem.id.desc())
 
     # Preparar as postagens com a foto atual do criador
     postagens_data = []
