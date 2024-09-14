@@ -218,14 +218,22 @@ def settings():
 @app.route("/upload_foto", methods=['POST'])
 @login_required
 def upload_foto():
+    MAX_SIZE = 2 * 1024 * 1024  # 2 MB
     file = request.files['file']
-    if file:
-        file_content = file.read()
-        user = current_user
-        user.foto = file_content
-        user.save()
 
-        flash('Foto atualizada com sucesso!')
+    # Verificar se um arquivo foi enviado
+    if file: # Ler o conteúdo do arquivo e obter o tamanho
+        file_content = file.read()
+        file.seek(0)  # Reposicionar o ponteiro do arquivo para o início
+
+        if len(file_content) <= MAX_SIZE:
+            user = current_user
+            user.foto = file_content
+            user.save()
+            flash('Foto atualizada com sucesso!')
+        else:
+            flash('Foto muito grande. Limite é de 2 MB.')
+
     return redirect(url_for('settings'))
 
 
@@ -237,9 +245,10 @@ def upload_dados():
     senha2 = request.form.get("password2")
 
     if senha == senha2:
+        heashed_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
         user = current_user
         user.nome = nome
-        user.senha = senha
+        user.senha = heashed_senha
         try:
             user.save()
             flash('Alteração realizada com sucesso!')

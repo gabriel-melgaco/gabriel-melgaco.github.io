@@ -20,11 +20,11 @@
                 <div class="p-4 bg-light rounded div_pensando">
                     <h3 class="text-bg-primary p-3"> Diga, no que está pensando?</h3>
                     <form method="POST" action="/postar">
-                        <label class="form-label" for="titulo">Título:</label><br>
-                        <input class='form-control' type="text" id="titulo" name="titulo" maxlength="100" required><br><br>
+                        <label class="form-label" for="titulo">Título(até 50 caracteres):</label><br>
+                        <input class='form-control' type="text" id="titulo" name="titulo" maxlength="50" required><br><br>
 
                         <label class="form-label" for="texto">Texto (até 200 caracteres):</label><br>
-                        <textarea class='form-control' id="texto" name="texto" maxlength="200"></textarea><br><br>
+                        <textarea class='form-control' id="texto" name="texto" maxlength="200" required></textarea><br><br>
 
                         <input class="btn btn-primary" type="submit" value="Postar">
                     </form>
@@ -33,13 +33,20 @@
             <!-- Feed de notícias à direita -->
             <div class="col-md-8">
                 <div class="p-4 bg-light rounded div_feed">
-                    <h3 class="text-bg-primary p-3"> Feed de notícias</h3>
+                    <h3 class="text-bg-primary"> Feed de notícias</h3>
                     {% for post in postagens %}
                         <div class="p-4 bg-light rounded div_post mb-3">
                             <img src="{{ post.foto }}" alt="mdo" width="32" height="32" class="rounded-circle">
                             <h2>{{ post.titulo }}</h2>
                             <p>{{ post.texto }}</p>
                             <small>Publicado em: {{ post.data }} por {{ post.usuario }}</small>
+                            <small>
+                                <form action=" " method="POST" class="comentar">
+                                    <label for="comentar" class="px-2 link-secondary"></label>
+                                     <input type="text" name="comentar" placeholder="Digite um comentário" autofocus="true" class="comentario" required/>
+                                    <input type="submit" value="Comentar" class="btn-custom-sm" />
+                                </form>
+                            </small>
                         </div>
                     {% endfor %}
                 </div>

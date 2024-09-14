@@ -12,12 +12,12 @@
     <script src="https://cdn.jsdelivr.net/npm/tippy.js@6.3.1/dist/tippy-bundle.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales/pt-br.js"></script>
 </head>
-<body>
+<body class="body">
   {% include 'header.html' %}
   <div class="container my-5 p-4 bg-light rounded">
       <table class="table">
   <thead>
-  <h2>Suas Atividades</h2>
+  <h2 class="text-bg-primary">Suas Atividades</h2>
     <tr>
       <th scope="col">Tarefa</th>
       <th scope="col">Descrição</th>
@@ -43,15 +43,15 @@
    </tbody>
           <form action="{{ url_for('cadastrar_evento') }}" method="POST" class="cadastrar_evento">
             <label for="tarefa" class="px-2 link-secondary">Tarefa</label>
-            <input type="text" name="tarefa" placeholder="Digite nome da tarefa" autofocus="true"/>
+            <input type="text" name="tarefa" placeholder="Digite nome da tarefa" autofocus="true" required/>
             <label for="description" class="px-2 link-secondary">Descrição</label>
-            <input type="text" name="description" placeholder="Descrição do evento" autofocus="true" />
+            <input type="text" name="description" placeholder="Descrição do evento" autofocus="true" required />
               <label for="start_date" class="px-2 link-secondary">Data Início</label>
-            <input type="date" name="start_date" placeholder="Digite Data de Início" autofocus="true" />
+            <input type="date" name="start_date" placeholder="Digite Data de Início" autofocus="true" required />
             <label for="end_date" class="px-2 link-secondary">Data Fim</label>
-            <input type="date" name="end_date" placeholder="Digite data do Fim" autofocus="true" />
+            <input type="date" name="end_date" placeholder="Digite data do Fim" autofocus="true" required />
             <label for="color" class="px-2 link-secondary">Cor</label>
-            <input type="color" name="color" placeholder="Escolha cor" autofocus="true" />
+            <input type="color" name="color" placeholder="Escolha cor" autofocus="true" required />
             <input type="submit" value="Add Evento" class="btn px-2 link-secondary" />
           </form>
 </table>
