@@ -1,25 +1,56 @@
 @charset "UTF-8";
 
+/* Estilo para o header fixo */
 header.p-3.mb-3.border-bottom {
   background-color: black;
+  width: 100%;
   color: white;
-  position: relative;
-  /* ou 'absolute' ou 'fixed', dependendo da sua necessidade */
-  z-index: 1000;
-  /* valor alto para garantir que o header fique no topo */
+  position: fixed; /* Manter o header fixo no topo */
+  top: 0; /* Garantir que o header fique no topo */
+  left: 0; /* Garantir que o header ocupe toda a largura */
+  z-index: 1000; /* Manter o header acima de outros elementos */
 }
 
+/* Espaçamento para a área "Bem-Vindo" */
 .bem-vindo {
   margin-right: 20px;
-  /* Ajuste o valor conforme necessário */
 }
 
+/* Espaçamento para o dropdown */
 .dropdown {
   margin-right: 20px;
-  /* Ajuste o valor conforme necessário */
 }
 
+/* Espaçamento para o formulário de logout */
 #contactForm {
   margin-left: 20px;
-  /* Ajuste o valor conforme necessário */
+}
+
+/* Outras estilizações */
+.div_pensando {
+    border-style: solid;
+    width: 100%;
+    height: 450px;
+    border: 3px solid blue;
+    box-sizing: border-box;
+}
+
+.body {
+    font-family: Arial, Helvetica, sans-serif;
+    border-radius: 25px;
+    background-color: rgb(0, 0, 0);
+}
+
+.input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+.div_noticias,
+.div_feed,
+.div_post {
+    border: 3px solid blue;
+    box-sizing: border-box;
 }

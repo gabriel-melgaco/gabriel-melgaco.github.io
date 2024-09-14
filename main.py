@@ -3,13 +3,21 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from peewee import *
 import base64
 import datetime
+from datetime import date
 import bcrypt
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 app.secret_key = 'flash_alerta'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)  # Definir a duração desejada p/ logout automático
+app.config['SESSION_COOKIE_SECURE'] = True  # Usar HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Previne acesso via JavaScript
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Previne CSRF em requests GET
+limiter = Limiter(get_remote_address, app=app) #Previne muitos acessos consecutivos
 
-# Configuração do Flask-Login
+
+''' ------------------Configuração do Flask-Login----------------'''
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'home'
@@ -17,9 +25,11 @@ login_manager.login_view = 'home'
 '''--------------------BANCO DE DADOS------------------'''
 db = SqliteDatabase('emailsenha.db') #nome do banco de dados
 
+
 class BaseModel(Model):
     class Meta:
         database = db
+
 
 class emailsenha(BaseModel, UserMixin):
     nome = CharField(unique=True, null=False)
@@ -27,17 +37,28 @@ class emailsenha(BaseModel, UserMixin):
     senha = CharField(null=False)
     foto = BlobField()
 
-class agenda(BaseModel, UserMixin):
-    usuario = ForeignKeyField(emailsenha, backref='agendas')  # Chave estrangeira referenciando emailsenha
+
+class agenda(BaseModel):
+    usuario = ForeignKeyField(emailsenha, backref='agendas', on_delete='CASCADE')  # Usuário pode ter várias agendas
     tarefa = CharField(unique=True, null=False)
     start_date = DateField(null=False)
     end_date = DateField(null=False)
-    description = CharField(unique=True, null=False)
+    description = CharField(null=False)  # Remover 'unique' para permitir descrições repetidas
     color = CharField(null=False)
+
+
+class postagem(BaseModel):
+    usuario = ForeignKeyField(emailsenha, backref='postagens', on_delete='CASCADE')  # Usuário pode ter várias postagens
+    foto = BlobField()
+    titulo = CharField(null=False)
+    texto = CharField(null=False)
+    data = DateField(null=False)
+
+
 
 # Conectar ao banco de dados e criar as tabelas
 db.connect()
-db.create_tables([emailsenha, agenda])
+db.create_tables([emailsenha, agenda, postagem])
 
 
 '''---------------------------ROTAS DO FLASK LOGIN E REGISTRO---------------------------------------'''
@@ -81,25 +102,65 @@ def registrar():
 
 
 @app.route("/login", methods=['POST'])
+@limiter.limit("5 per minute") #limita 5 tentativas por minuto
 def login():
     email = request.form["email"]
     senha = request.form["password"]
     user = emailsenha.get_or_none(emailsenha.email == email)
 
-    if user and bcrypt.checkpw(senha.encode('utf-8'), user.senha.encode('utf-8')):
-        login_user(user)
-        session.permanent = True  # torna a sessão permanente
-        return redirect(url_for('protected'))
+    try:
+        if user and bcrypt.checkpw(senha.encode('utf-8'), user.senha.encode('utf-8')):
+            login_user(user)
+            session.permanent = True  # torna a sessão permanente
+            return redirect(url_for('protected'))
 
-    flash('LOGIN/SENHA INCORRETO')
-    return render_template('login.html')
+        flash('LOGIN/SENHA INCORRETO')
+        return render_template('login.html')
+    except ValueError:
+        flash('SENHA INCORRETA')
+        return render_template('login.html')
+@app.errorhandler(429) #erro de Too many resquests
+def ratelimit_handler(e):
+    flash("Muitas tentativas de login. Tente novamente mais tarde.")
+    return render_template('login.html'), 429
 
 
 @app.route("/protected")
 @login_required
 def protected():
-    return render_template('home.html', user=current_user)
+    # Buscar todas as postagens
+    postagens = postagem.select()
 
+    # Preparar as postagens com a foto atual do criador
+    postagens_data = []
+    for post in postagens:
+        # Pegar o usuário que criou o post
+        usuario_postagem = post.usuario
+
+        # Converter a foto do usuário para base64
+        foto_base64 = base64.b64encode(usuario_postagem.foto).decode('utf-8') if usuario_postagem.foto else None
+        foto_url = f"data:image/jpeg;base64,{foto_base64}" if foto_base64 else url_for('static', filename='assets/img/user_icon.png')
+
+        # Adicionar os dados da postagem e a foto do criador
+        postagens_data.append({
+            'foto': foto_url,  # Foto atual do criador da postagem
+            'titulo': post.titulo,
+            'texto': post.texto,
+            'data': post.data,
+            'usuario': usuario_postagem.nome
+        })
+
+    return render_template('home.html', user=current_user, postagens=postagens_data)
+
+
+
+
+@app.route("/logout", methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    flash('Você saiu da sua conta.')
+    return redirect(url_for('home'))
 '''---------------------------ROTAS DO AGENDA DE EVENTOS---------------------------------------'''
 
 @app.route("/agenda") #visualizar a agenda
@@ -191,14 +252,28 @@ def upload_dados():
     return redirect(url_for('settings'))
 
 
-@app.route("/logout", methods=['POST'])
+'''----------------------Sistema de Posts(Rede Social------------------------'''
+@app.route("/postar", methods=['POST'])
 @login_required
-def logout():
-    logout_user()
-    flash('Você saiu da sua conta.')
-    return redirect(url_for('home'))
+def postar():
+    usuario = current_user
+    foto = current_user.foto  # foto em formato de blob (bytes)
+    titulo = request.form.get('titulo')
+    texto = request.form.get('texto')
+    data = date.today()
+
+    # Criar a postagem sem converter a foto para base64
+    postagem.create(
+        usuario=usuario,
+        foto=foto,
+        titulo=titulo,
+        texto=texto,
+        data=data
+    )
+    return redirect(url_for('protected'))
 
 
+'''-------------------rendereização de imagens no login---------------------'''
 @app.context_processor
 def inject_foto_data_url():
     if current_user.is_authenticated:
