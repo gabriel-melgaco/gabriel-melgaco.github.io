@@ -55,10 +55,16 @@ class postagem(BaseModel):
     data = DateField(null=False)
 
 
+class comentario(BaseModel):
+    usuario = ForeignKeyField(emailsenha, backref='postagens', on_delete='CASCADE')
+    postagem = ForeignKeyField(postagem, backref='comentarios', on_delete='CASCADE')
+    comentario = CharField(null=False)
+    data = DateField(null=False)
+
 
 # Conectar ao banco de dados e criar as tabelas
 db.connect()
-db.create_tables([emailsenha, agenda, postagem])
+db.create_tables([emailsenha, agenda, postagem, comentario])
 
 
 '''---------------------------ROTAS DO FLASK LOGIN E REGISTRO---------------------------------------'''
@@ -130,9 +136,11 @@ def ratelimit_handler(e):
 def protected():
     # Buscar todas as postagens
     postagens = postagem.select().order_by(postagem.id.desc())
+    comentarios = comentario.select()
 
     # Preparar as postagens com a foto atual do criador
     postagens_data = []
+    comentarios_data = []
     for post in postagens:
         # Pegar o usuário que criou o post
         usuario_postagem = post.usuario
@@ -143,16 +151,23 @@ def protected():
 
         # Adicionar os dados da postagem e a foto do criador
         postagens_data.append({
+            'id': post.id,
             'foto': foto_url,  # Foto atual do criador da postagem
             'titulo': post.titulo,
             'texto': post.texto,
             'data': post.data,
             'usuario': usuario_postagem.nome
         })
+    for x in comentarios:
+        comentarios_data.append({
+            'id': x.postagem_id,
+            'usuario': x.usuario.nome,
+            'comentario':x.comentario,
+            'data': x.data
+        })
 
-    return render_template('home.html', user=current_user, postagens=postagens_data)
 
-
+    return render_template('home.html', user=current_user, postagens=postagens_data, comentarios=comentarios_data)
 
 
 @app.route("/logout", methods=['POST'])
@@ -261,7 +276,7 @@ def upload_dados():
     return redirect(url_for('settings'))
 
 
-'''----------------------Sistema de Posts(Rede Social------------------------'''
+'''----------------------Sistema de Posts(Rede Social)------------------------'''
 @app.route("/postar", methods=['POST'])
 @login_required
 def postar():
@@ -281,6 +296,22 @@ def postar():
     )
     return redirect(url_for('protected'))
 
+
+@app.route("/comentar/<int:postagem_id>", methods=['POST'])
+@login_required
+def comentar(postagem_id):
+    usuario = current_user
+    texto_comentario = request.form.get('comentar')
+    data = date.today()
+    postagem_id = postagem.get(postagem.id == postagem_id)
+
+    comentario.create(
+        usuario=usuario,
+        postagem=postagem_id,
+        comentario=texto_comentario,
+        data=data
+    )
+    return redirect(url_for('protected'))
 
 '''-------------------rendereização de imagens no login---------------------'''
 @app.context_processor

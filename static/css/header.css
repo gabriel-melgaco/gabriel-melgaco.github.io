@@ -93,3 +93,17 @@ h3.text-bg-primary:hover {
             background: linear-gradient(90deg, #0056b3, #003d7a);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
         }
+
+.comentario_usuario {
+    color:blue;
+}
+
+.comentario_data{
+    text-align: right;
+    display: block;
+}
+
+.comments {
+    border-bottom: 1px solid #000; /* Define uma linha preta de 1px */
+    padding-bottom: 10px;
+}

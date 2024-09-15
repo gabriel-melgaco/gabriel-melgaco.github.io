@@ -41,11 +41,20 @@
                             <p>{{ post.texto }}</p>
                             <small>Publicado em: {{ post.data }} por {{ post.usuario }}</small>
                             <small>
-                                <form action=" " method="POST" class="comentar">
+                                <form action="{{ url_for('comentar', postagem_id=post.id) }}" method="POST" class="comentar">
                                     <label for="comentar" class="px-2 link-secondary"></label>
-                                     <input type="text" name="comentar" placeholder="Digite um comentário" autofocus="true" class="comentario" required/>
+                                    <input type="text" name="comentar" placeholder="Digite um comentário" autofocus="true" class="comentario" required/>
                                     <input type="submit" value="Comentar" class="btn-custom-sm" />
                                 </form>
+                                    {% for comentario in comentarios %}
+                                        {% if comentario.id == post.id %}
+                                            <div class="comments">
+                                                <a class="comentario_usuario">{{ comentario.usuario }}:</a>
+                                                <small> {{ comentario.comentario }}</small>
+                                                <small class="comentario_data"> em {{ comentario.data }}</small>
+                                            </div>
+                                        {% endif %}
+                                {% endfor %}
                             </small>
                         </div>
                     {% endfor %}
