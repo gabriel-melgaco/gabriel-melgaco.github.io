@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask User Authentication, Profile Management, and Event Scheduling Application</title>
-</head>
-<body>
+
     <h1>Flask User Authentication, Profile Management, and Event Scheduling Application</h1>
     <p>A web application built with Flask that provides user registration, login, profile management, account settings functionality, and event scheduling. It leverages Flask-Login for user authentication and Peewee ORM with SQLite for database management.</p>
 
